@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { MouseEvent, useEffect, useState } from 'react'
 
 import '../styles/tasklist.scss'
 
@@ -10,20 +10,57 @@ interface Task {
   isComplete: boolean;
 }
 
+function updateLocalTasks(tasks: Task[]) {
+  localStorage.setItem("@tasks", JSON.stringify(tasks));
+}
+
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
-  function handleCreateNewTask() {
+  useEffect(() => { 
+    const localTasks = JSON.parse(localStorage.getItem('@tasks') as string);
+
+    if (localTasks) setTasks(localTasks);
+  }, []);
+
+  function handleCreateNewTask(event: MouseEvent<HTMLButtonElement>) {
     // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+    const $text = (event.currentTarget.previousSibling as HTMLInputElement).value;
+    const task = {
+      id: Math.random() * 5,
+      isComplete: false,
+      title: $text,
+    }
+
+    if ($text.trim().length > 0) {
+      let updatedTasks = [...tasks, task];
+
+      setTasks(updatedTasks);
+      updateLocalTasks(updatedTasks);
+    }
   }
 
   function handleToggleTaskCompletion(id: number) {
     // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    const updatedTasks = tasks.map(task => {
+      if (task.id === id) {
+        task.isComplete = task.isComplete ? false : true;
+      }
+
+      return task;
+    })
+
+    setTasks(updatedTasks);
+    updateLocalTasks(updatedTasks);
   }
 
   function handleRemoveTask(id: number) {
     // Remova uma task da listagem pelo ID
+    const updatedTasks = tasks.filter(task => task.id !== id);
+
+    updateLocalTasks(updatedTasks);
+    setTasks(updatedTasks);
   }
 
   return (
@@ -38,7 +75,7 @@ export function TaskList() {
             onChange={(e) => setNewTaskTitle(e.target.value)}
             value={newTaskTitle}
           />
-          <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
+          <button type="submit" data-testid="add-task-button" onClick={(event) => handleCreateNewTask(event)}>
             <FiCheckSquare size={16} color="#fff"/>
           </button>
         </div>
