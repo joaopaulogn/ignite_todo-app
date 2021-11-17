@@ -28,7 +28,7 @@ export function TaskList() {
     // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
     const $text = (event.currentTarget.previousSibling as HTMLInputElement).value;
     const task = {
-      id: Math.random() * 5,
+      id: Number((Math.random() * 5).toFixed(3)),
       isComplete: false,
       title: $text,
     }
@@ -37,7 +37,7 @@ export function TaskList() {
       let updatedTasks = [...tasks, task];
 
       setTasks(updatedTasks);
-      updateLocalTasks(updatedTasks);
+      updateLocalTasks(tasks);
     }
   }
 
@@ -57,9 +57,13 @@ export function TaskList() {
 
   function handleRemoveTask(id: number) {
     // Remova uma task da listagem pelo ID
+    const index = tasks.indexOf(
+      tasks.filter(task => task.id === id)[0]
+    );
+    const removedTask = tasks.splice(index, index + 1);
     const updatedTasks = tasks.filter(task => task.id !== id);
 
-    updateLocalTasks(updatedTasks);
+    updateLocalTasks(tasks);
     setTasks(updatedTasks);
   }
 
