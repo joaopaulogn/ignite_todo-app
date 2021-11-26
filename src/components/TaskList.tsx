@@ -14,19 +14,17 @@ export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
 
-  function handleCreateNewTask(event: MouseEvent<HTMLButtonElement>) {
+  function handleCreateNewTask() {
     // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
-    const $text = (event.currentTarget.previousSibling as HTMLInputElement)
-      .value;
-
-    if ($text.trim().length > 0) {
-      const task = {
+    if (newTaskTitle.trim()) {
+      const newTask = {
         id: Number((Math.random() * 5).toFixed(3)),
+        title: newTaskTitle,
         isComplete: false,
-        title: $text,
       };
 
-      setTasks((prevState) => [...prevState, task]);
+      setTasks((prevState) => [...prevState, newTask]);
+      setNewTaskTitle("");
     }
   }
 
@@ -34,7 +32,7 @@ export function TaskList() {
     // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
     const updatedTasks = tasks.map((task) => {
       if (task.id === id) {
-        task.isComplete = task.isComplete ? false : true;
+        task.isComplete = !task.isComplete;
       }
 
       return task;
@@ -65,7 +63,7 @@ export function TaskList() {
           <button
             type="submit"
             data-testid="add-task-button"
-            onClick={(event) => handleCreateNewTask(event)}
+            onClick={handleCreateNewTask}
           >
             <FiCheckSquare size={16} color="#fff" />
           </button>
